@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego del Gato (2 Jugadores)</title>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        text-align: center;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        color: white;
+    }
+
+    h1 {
+        margin-bottom: 25px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        font-size: 40px;
+    }
+
+    #board {
+        display: grid;
+        grid-template-columns: repeat(3, 120px);
+        grid-template-rows: repeat(3, 120px);
+        gap: 10px;
+        padding: 20px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .cell {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        font-size: 55px;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.3s;
+        color: #fff;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .cell:hover {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    #turno {
+        margin-top: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    }
+
+    #reset {
+        margin-top: 20px;
+        padding: 12px 25px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        border-radius: 10px;
+        background: #ffca28;
+        color: #333;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        transition: 0.2s;
+    }
+
+    #reset:hover {
+        background: #ffe082;
+        transform: scale(1.05);
+    }
+</style>
+</head>
+<body>
+<h1>Juego del Gato - 2 Jugadores</h1>
+
+<div id="turno">Turno de: X</div>
+<div id="board"></div>
+<button id="reset" onclick="reiniciar()">Reiniciar</button>
+
+<script>
+    const board = document.getElementById("board");
+    const turnoTexto = document.getElementById("turno");
+    let turno = "X";
+    let celdas = Array(9).fill("");
+    let juegoActivo = true;
+
+    function crearTablero() {
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.dataset.index = i;
+            cell.addEventListener("click", jugar);
+            board.appendChild(cell);
+        }
+    }
+
+    function jugar(e) {
+        const index = e.target.dataset.index;
+
+        if (celdas[index] !== "" || !juegoActivo) return;
+
+        celdas[index] = turno;
+        e.target.textContent = turno;
+
+        if (verificarGanador()) {
+            turnoTexto.textContent = `¡Jugador ${turno} gana!`;
+            juegoActivo = false;
+            return;
+        }
+
+        if (!celdas.includes("")) {
+            turnoTexto.textContent = "¡Empate!";
+            juegoActivo = false;
+            return;
+        }
+
+        turno = turno === "X" ? "O" : "X";
+        turnoTexto.textContent = `Turno de: ${turno}`;
+    }
+
+    function verificarGanador() {
+        const combinaciones = [
+            [0,1,2], [3,4,5], [6,7,8],
+            [0,3,6], [1,4,7], [2,5,8],
+            [0,4,8], [2,4,6]
+        ];
+
+        return combinaciones.some(comb => {
+            return (
+                celdas[comb[0]] !== "" &&
+                celdas[comb[0]] === celdas[comb[1]] &&
+                celdas[comb[1]] === celdas[comb[2]]
+            );
+        });
+    }
+
+    function reiniciar() {
+        celdas = Array(9).fill("");
+        turno = "X";
+        juegoActivo = true;
+        turnoTexto.textContent = "Turno de: X";
+        Array.from(document.getElementsByClassName("cell")).forEach(cell => {
+            cell.textContent = "";
+        });
+    }
+
+    crearTablero();
+</script>
+</body>
+</html>
